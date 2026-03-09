@@ -1,35 +1,33 @@
 'use client'
 
-import Image from 'next/image'
+import { type UserPublic } from '@/lib/api'
 
 interface HomeProps {
-  userEmail: string
+  user: UserPublic
   onLogout: () => void
 }
 
-export default function Home({ userEmail, onLogout }: HomeProps) {
-  const initials = userEmail.slice(0, 2).toUpperCase()
+export default function Home({ user, onLogout }: HomeProps) {
+  const initials = user.username.slice(0, 2).toUpperCase()
 
   return (
     <div className="home-page">
       <nav className="navbar">
         <a className="navbar__brand" href="#">
-          <Image src="/logo.jpg" alt="Logo" width={36} height={36} className="navbar__logo" />
+          <img src="/logo.png" alt="Logo" width={36} height={36} className="navbar__logo" />
           <span className="navbar__name">Minha Estante</span>
         </a>
         <div className="navbar__user">
           <div className="avatar">{initials}</div>
+          <span style={{ fontSize: '0.9rem', color: '#666', fontFamily: 'DM Sans, sans-serif' }}>
+            {user.username}
+          </span>
           <button
             onClick={onLogout}
             style={{
-              background: 'none',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '6px 14px',
-              fontSize: '0.85rem',
-              color: '#888',
-              cursor: 'pointer',
-              fontFamily: 'DM Sans, sans-serif',
+              background: 'none', border: '1px solid #ddd', borderRadius: '8px',
+              padding: '6px 14px', fontSize: '0.85rem', color: '#888',
+              cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
             }}
           >
             Sair

@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import Image from 'next/image'
+import { useEffect } from 'react'
 
 interface SplashProps {
   onDone: () => void
@@ -9,7 +8,6 @@ interface SplashProps {
 
 export default function Splash({ onDone }: SplashProps) {
   useEffect(() => {
-    // After 1.5s (1s display + 0.5s fade), call onDone
     const timer = setTimeout(onDone, 1500)
     return () => clearTimeout(timer)
   }, [onDone])
@@ -17,13 +15,13 @@ export default function Splash({ onDone }: SplashProps) {
   return (
     <div className="splash">
       <div className="splash__logo-wrap">
-        <Image
-          src="/logo.jpg"
+        {/* img nativo para evitar otimizações do Next.js que conflitam com o filtro CSS */}
+        <img
+          src="/logo.png"
           alt="Minha Estante"
           width={100}
           height={100}
           className="splash__logo"
-          priority
         />
       </div>
       <h1 className="splash__title">Minha Estante</h1>
