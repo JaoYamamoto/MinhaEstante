@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import Splash   from '@/components/Splash'
 import Login    from '@/components/Login'
@@ -13,28 +12,14 @@ export default function Page() {
   const [screen, setScreen] = useState<Screen>('splash')
   const [user,   setUser]   = useState<UserPublic | null>(null)
 
-  function handleLogin(u: UserPublic)      { setUser(u); setScreen('home') }
-  function handleRegistered(u: UserPublic) { setUser(u); setScreen('home') }
-  function handleLogout()                  { setUser(null); setScreen('login') }
+  function enter(u: UserPublic) { setUser(u); setScreen('home') }
 
   return (
     <>
       {screen === 'splash'   && <Splash onDone={() => setScreen('login')} />}
-      {screen === 'login'    && (
-        <Login
-          onLogin={handleLogin}
-          onGoToRegister={() => setScreen('register')}
-        />
-      )}
-      {screen === 'register' && (
-        <Register
-          onRegistered={handleRegistered}
-          onGoToLogin={() => setScreen('login')}
-        />
-      )}
-      {screen === 'home' && user && (
-        <Home user={user} onLogout={handleLogout} />
-      )}
+      {screen === 'login'    && <Login onLogin={enter} onGoToRegister={() => setScreen('register')} />}
+      {screen === 'register' && <Register onRegistered={enter} onGoToLogin={() => setScreen('login')} />}
+      {screen === 'home' && user && <Home user={user} onLogout={() => { setUser(null); setScreen('login') }} />}
     </>
   )
 }

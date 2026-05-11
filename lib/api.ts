@@ -1,23 +1,12 @@
-/**
- * Cliente HTTP para o backend Flask.
- * Todas as funções lançam Error com a mensagem do servidor em caso de falha.
- */
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000"
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000"
-
-interface ApiResponse<T = Record<string, unknown>> {
-  ok: boolean
-  error?: string
-  [key: string]: unknown
-}
-
-async function request<T>(
-  method: "GET" | "POST",
+async function req<T>(
+  method: "GET" | "POST" | "PUT" | "DELETE",
   path: string,
   body?: Record<string, unknown>,
   params?: Record<string, string>,
-): Promise<ApiResponse<T>> {
-  const url = new URL(BASE_URL + path)
+): Promise<T> {
+  const url = new URL(BASE + path)
   if (params) Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
 
   const res = await fetch(url.toString(), {
@@ -25,18 +14,12 @@ async function request<T>(
     headers: body ? { "Content-Type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,
   })
-
-  const data: ApiResponse<T> = await res.json()
-
-  if (!data.ok) {
-    throw new Error(data.error ?? "Erro desconhecido.")
-  }
-
-  return data
+  const data = await res.json()
+  if (!data.ok) throw new Error(data.error ?? "Erro desconhecido.")
+  return data as T
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
-
 export interface UserPublic {
   id: number
   email: string
@@ -44,39 +27,59 @@ export interface UserPublic {
   created_at: string
 }
 
-/** Valida dados de cadastro no backend antes de enviar o OTP. */
-export async function apiValidateRegister(
-  email: string,
-  username: string,
-  password: string,
-): Promise<void> {
-  await request("POST", "/auth/register", { email, username, password })
-}
-
-/** Persiste o usuário após verificação OTP bem-sucedida. */
 export async function apiCompleteRegister(
-  email: string,
-  username: string,
-  password: string,
+  email: string, username: string, password: string,
 ): Promise<UserPublic> {
-  const data = await request("POST", "/auth/verify-otp", { email, username, password })
-  return data.user as UserPublic
+  const d = await req<{ user: UserPublic }>("POST", "/auth/verify-otp", { email, username, password })
+  return d.user
 }
 
-/** Autentica com e-mail + senha. */
 export async function apiLogin(email: string, password: string): Promise<UserPublic> {
-  const data = await request("POST", "/auth/login", { email, password })
-  return data.user as UserPublic
+  const d = await req<{ user: UserPublic }>("POST", "/auth/login", { email, password })
+  return d.user
 }
 
-/** Verifica em tempo real se e-mail já existe. */
-export async function apiCheckEmail(email: string): Promise<boolean> {
-  const data = await request("GET", "/auth/check-email", undefined, { email })
-  return data.exists as boolean
+// ── Books ─────────────────────────────────────────────────────────────────────
+export interface BookData {
+  id: number
+  google_books_id: string | null
+  title: string
+  authors: string | null
+  publisher: string | null
+  published_date: string | null
+  description: string | null
+  page_count: number | null
+  categories: string | null
+  language: string | null
+  cover_url: string | null
+  status: "want_to_read" | "reading" | "read"
+  added_at: string
+  updated_at: string
 }
 
-/** Verifica em tempo real se username já existe. */
-export async function apiCheckUsername(username: string): Promise<boolean> {
-  const data = await request("GET", "/auth/check-username", undefined, { username })
-  return data.exists as boolean
+export type BookInput = Partial<Omit<BookData, "id" | "added_at" | "updated_at">> & {
+  user_id: number
+  title: string
+}
+
+export async function apiListBooks(user_id: number): Promise<BookData[]> {
+  const d = await req<{ books: BookData[] }>("GET", "/books", undefined, { user_id: String(user_id) })
+  return d.books
+}
+
+export async function apiAddBook(payload: BookInput): Promise<BookData> {
+  const d = await req<{ book: BookData }>("POST", "/books", payload as Record<string, unknown>)
+  return d.book
+}
+
+export async function apiUpdateBook(
+  book_id: number,
+  payload: Partial<BookInput>,
+): Promise<BookData> {
+  const d = await req<{ book: BookData }>("PUT", `/books/${book_id}`, payload as Record<string, unknown>)
+  return d.book
+}
+
+export async function apiDeleteBook(book_id: number, user_id: number): Promise<void> {
+  await req("DELETE", `/books/${book_id}`, undefined, { user_id: String(user_id) })
 }
