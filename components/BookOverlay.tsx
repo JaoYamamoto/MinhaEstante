@@ -122,8 +122,11 @@ export default function BookOverlay({ book, userId, onUpdate, onDelete, onClose 
                 <button key={val}
                   className={`status-btn ${status === val ? 'active' : ''}`}
                   style={status === val ? { background: STATUS_COLORS[val], color: '#fff' } : {}}
-                  onClick={() => editing || setStatus(val as BookData['status'])}
-                  disabled={!editing && status !== val}
+                  onClick={async () => {
+                    const s = val as BookData['status']
+                    setStatus(s)
+                    if (!editing) await onUpdate(book.id, { user_id: userId, status: s })
+                  }}
                 >
                   {label}
                 </button>

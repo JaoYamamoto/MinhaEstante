@@ -76,7 +76,7 @@ def add_book():
     )
     db.session.add(book)
     db.session.commit()
-    return _ok({"book": book.to_dict()}), 201
+    return _ok({"book": book.to_dict()})
 
 
 # ── PUT /books/<id> ───────────────────────────────────────────────────────────

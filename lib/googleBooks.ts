@@ -14,6 +14,8 @@ export interface GoogleBook {
   categories: string[]
   language: string
   coverUrl: string | null
+  averageRating: number
+  ratingsCount: number
 }
 
 interface GBVolumeInfo {
@@ -25,6 +27,8 @@ interface GBVolumeInfo {
   pageCount?: number
   categories?: string[]
   language?: string
+  averageRating?: number
+  ratingsCount?: number
   imageLinks?: {
     thumbnail?: string
     smallThumbnail?: string
@@ -39,7 +43,6 @@ interface GBItem {
 function coverOf(info: GBVolumeInfo): string | null {
   const raw = info.imageLinks?.thumbnail ?? info.imageLinks?.smallThumbnail ?? null
   if (!raw) return null
-  // Forçar HTTPS e remover parâmetro de zoom para obter melhor qualidade
   return raw.replace(/^http:/, "https:").replace(/&zoom=\d/, "&zoom=1")
 }
 
@@ -56,19 +59,27 @@ function toGoogleBook(item: GBItem): GoogleBook {
     categories:    v.categories    ?? [],
     language:      v.language      ?? "",
     coverUrl:      coverOf(v),
+    averageRating: v.averageRating ?? 0,
+    ratingsCount:  v.ratingsCount  ?? 0,
   }
 }
 
-export async function searchGoogleBooks(query: string, maxResults = 12): Promise<GoogleBook[]> {
+// score = rating × log10(ratingsCount + 1); livros sem avaliação ficam por último
+function relevanceScore(b: GoogleBook): number {
+  return b.averageRating * Math.log10(b.ratingsCount + 1)
+}
+
+export async function searchGoogleBooks(query: string, display = 12): Promise<GoogleBook[]> {
   if (!query.trim()) return []
-  const url = new URL("https://www.googleapis.com/books/v1/volumes")
+  const url = new URL("/api/books-search", window.location.origin)
   url.searchParams.set("q", query)
-  url.searchParams.set("maxResults", String(maxResults))
-  url.searchParams.set("printType", "books")
-  url.searchParams.set("langRestrict", "pt")   // prioriza PT; remova se quiser resultados globais
+  url.searchParams.set("maxResults", "30")
 
   const res = await fetch(url.toString())
   if (!res.ok) throw new Error("Erro ao buscar na Google Books.")
   const data = await res.json()
-  return (data.items ?? []).map(toGoogleBook)
+
+  const books: GoogleBook[] = (data.items ?? []).map(toGoogleBook)
+  books.sort((a, b) => relevanceScore(b) - relevanceScore(a))
+  return books.slice(0, display)
 }
