@@ -151,6 +151,7 @@ export default function Home({ user, onLogout }: Props) {
       {showSearch && (
         <SearchModal
           userId={user.id}
+          existingBooks={books}
           onAdd={handleAddBook}
           onClose={() => setShowSearch(false)}
         />

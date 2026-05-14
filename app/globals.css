@@ -587,3 +587,93 @@ img { display: block; }
 
   .overlay-row-2 { grid-template-columns:1fr; }
 }
+
+/* ── TABS DO SEARCH MODAL ────────────────────────────────────────────────── */
+.search-modal__tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+}
+.sm-tab {
+  padding: 10px 18px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+.sm-tab:hover { color: var(--primary); }
+.sm-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+/* ── AVISO DE CONEXÃO LENTA ──────────────────────────────────────────────── */
+.search-modal__slow {
+  margin: 8px 24px 0;
+  padding: 9px 14px;
+  background: #FFF8E1;
+  border: 1px solid #FFD54F;
+  border-radius: 8px;
+  font-size: 0.87rem;
+  color: #7A5700;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* ── CAIXA DE ERRO COM AÇÃO ──────────────────────────────────────────────── */
+.search-modal__error-box {
+  margin: 8px 24px 0;
+  padding: 10px 14px;
+  background: #FFEEEE;
+  border: 1px solid #FFBBBB;
+  border-radius: 8px;
+  font-size: 0.87rem;
+  color: #C00;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.search-modal__error-box .link-btn {
+  color: var(--primary);
+  font-size: 0.87rem;
+  white-space: nowrap;
+}
+
+/* ── ABA MANUAL ──────────────────────────────────────────────────────────── */
+.search-modal__manual {
+  padding: 20px 24px 24px;
+  overflow-y: auto;
+  max-height: calc(80vh - 145px);
+}
+.search-modal__manual-sub {
+  font-size: 0.87rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+.manual-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.manual-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+/* ── ABA ESTANTE ─────────────────────────────────────────────────────────── */
+.search-modal__shelf {
+  padding: 16px 24px 0;
+}
