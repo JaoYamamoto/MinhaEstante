@@ -24,9 +24,7 @@ def create_app() -> Flask:
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
-    raw_origins = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
-    origins = [o.strip() for o in raw_origins.split(",")]
-    CORS(app, origins=origins)
+    CORS(app)
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(books_bp)
