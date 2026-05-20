@@ -13,9 +13,13 @@ public/sw.js.map
 public/workbox-*.js
 public/workbox-*.js.map
 
-# env files 
+# env files
 .env.local
 .env.*.local
+backend/.env
+
+# SQLite
+backend/instance/*.db
 
 # build
 build/
